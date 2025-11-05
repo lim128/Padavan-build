@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup build environment
+      - name: 完善编译环境
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -26,14 +26,14 @@ jobs:
           upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd || { echo "Failed to install packages"; exit 1; }
           sudo timedatectl set-timezone "Asia/Shanghai" > /dev/null 2>&1 || { echo "Failed to set timezone"; exit 1; }
 
-      - name: Clone Padavan source
+      - name: 克隆源码
         run: |
           git clone --depth=1 --quiet https://github.com/MeIsReallyBa/padavan-4.4.git /opt/rt-n56u || { echo "Failed to clone repository"; exit 1; }
           cd /opt/rt-n56u/toolchain-mipsel
           bash dl_toolchain.sh > /dev/null 2>&1 || { echo "Failed to download toolchain"; exit 1; }
           mkdir -p /opt/images/ || { echo "Failed to create images directory"; exit 1; }
 
-      - name: Build firmware
+      - name: 编译固件
         id: compile
         env:
           DEVICE_MODELS: "CR660x RM2100"
@@ -73,13 +73,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: df -h
 
-      - name: Generate release tag
+      - name: 生成发布标签
         id: tag
         if: success() && steps.compile.outputs.status == 'success'
         run: |
           echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
 
-      - name: Upload firmware to GitHub Releases
+      - name: 上传到Releases
         uses: softprops/action-gh-release@v1
         if: success() && steps.tag.conclusion == 'success'
         with:
@@ -88,7 +88,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete workflow runs
+      - name: 删除旧workflow
         uses: Mattraks/delete-workflow-runs@main
         with:
           retain_days: 0
