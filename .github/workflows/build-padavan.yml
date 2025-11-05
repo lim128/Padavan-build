@@ -28,6 +28,7 @@ jobs:
 
       - name: 克隆源码
         run: |
+          df -hT $PWD
           git clone --depth=1 --quiet https://github.com/MeIsReallyBa/padavan-4.4.git /opt/rt-n56u || { echo "Failed to clone repository"; exit 1; }
           cd /opt/rt-n56u/toolchain-mipsel
           bash dl_toolchain.sh > /dev/null 2>&1 || { echo "Failed to download toolchain"; exit 1; }
@@ -38,7 +39,6 @@ jobs:
         env:
           DEVICE_MODELS: "CR660x RM2100"
         run: |
-          df -hT $PWD
           cd /opt/rt-n56u/trunk
           success=true
           for TNAME in $DEVICE_MODELS; do
