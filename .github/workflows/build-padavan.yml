@@ -15,23 +15,23 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get update
-          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
           bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
           g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
           libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
           libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
           ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
           python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
-          upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
-          sudo timedatectl set-timezone "Asia/Shanghai"
+          upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd || { echo "Failed to install packages"; exit 1; }
+          sudo timedatectl set-timezone "Asia/Shanghai" > /dev/null 2>&1 || { echo "Failed to set timezone"; exit 1; }
 
       - name: Clone Padavan source
         run: |
-          git clone --depth=1 https://github.com/MeIsReallyBa/padavan-4.4.git /opt/rt-n56u
+          git clone --depth=1 --quiet https://github.com/MeIsReallyBa/padavan-4.4.git /opt/rt-n56u || { echo "Failed to clone repository"; exit 1; }
           cd /opt/rt-n56u/toolchain-mipsel
-          bash dl_toolchain.sh
-          mkdir -p /opt/images/
+          bash dl_toolchain.sh > /dev/null 2>&1 || { echo "Failed to download toolchain"; exit 1; }
+          mkdir -p /opt/images/ || { echo "Failed to create images directory"; exit 1; }
 
       - name: Build firmware
         id: compile
@@ -48,16 +48,15 @@ jobs:
             fi
             echo "Building firmware for $TNAME"
             cp -f configs/templates/$TNAME.config .config
-            
             echo "CONFIG_FIRMWARE_INCLUDE_OC=y" >> .config
             echo 'CONFIG_FIRMWARE_MT7621_OC="0x3B2"' >> .config
             echo "CONFIG_FIRMWARE_INCLUDE_WIREGUARD=n" >> .config
 
-            sudo ./clear_tree
-            sudo ./build_firmware_modify $TNAME 0
+            sudo ./clear_tree > /dev/null 2>&1 || { echo "Failed to clear tree for $TNAME"; success=false; continue; }
+            sudo ./build_firmware_modify $TNAME 0 > /dev/null 2>&1
             if [ $? -eq 0 ]; then
               echo "Build for $TNAME succeeded"
-              sudo mv -f images/*.trx /opt/images/
+              sudo mv -f images/*.trx /opt/images/ || { echo "Failed to move firmware for $TNAME"; success=false; }
             else
               echo "Build for $TNAME failed"
               success=false
