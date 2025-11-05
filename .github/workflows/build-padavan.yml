@@ -69,6 +69,10 @@ jobs:
             exit 1
           fi
 
+      - name: 检查存储空间
+        if: ${{ !cancelled() }}
+        run: df -h
+
       - name: Generate release tag
         id: tag
         if: success() && steps.compile.outputs.status == 'success'
