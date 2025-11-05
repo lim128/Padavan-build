@@ -38,7 +38,7 @@ jobs:
         env:
           DEVICE_MODELS: "CR660x RM2100"
         run: |
-          df -hT
+          df -hT $PWD
           cd /opt/rt-n56u/trunk
           success=true
           for TNAME in $DEVICE_MODELS; do
@@ -72,7 +72,7 @@ jobs:
 
       - name: 检查存储空间
         if: ${{ !cancelled() }}
-        run: df -hT
+        run: df -hT $PWD
 
       - name: 生成发布标签
         id: tag
