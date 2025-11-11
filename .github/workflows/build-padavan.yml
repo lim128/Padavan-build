@@ -50,7 +50,7 @@ jobs:
             echo "Building firmware for $TNAME"
             cp -f configs/templates/$TNAME.config .config
             echo "CONFIG_FIRMWARE_INCLUDE_OC=y" >> .config
-            echo 'CONFIG_FIRMWARE_MT7621_OC="0x372"' >> .config #此处填写对应频率的十六进制：1000Mhz=0x312 1100Mhz=0x362 1120Mhz=0x372 1200Mhz=0x3B2
+            echo 'CONFIG_FIRMWARE_MT7621_OC="0x362"' >> .config #此处填写对应频率的十六进制：1000Mhz=0x312 1100Mhz=0x362 1120Mhz=0x372 1200Mhz=0x3B2
             echo "CONFIG_FIRMWARE_INCLUDE_WIREGUARD=n" >> .config
 
             sudo ./clear_tree > /dev/null 2>&1 || { echo "Failed to clear tree for $TNAME"; success=false; continue; }
